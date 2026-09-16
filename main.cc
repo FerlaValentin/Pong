@@ -1,3 +1,6 @@
+#include <stdlib.h>
+#include <time.h>
+
 #include <esat\window.h>
 #include <esat\draw.h>
 #include <esat\time.h>
@@ -16,29 +19,30 @@ void InitFrame(){
     // Limit delta_time to avoid large jumps
     if (dt > 0.1) dt = 0.1;
     last_time = current_time;
+    esat::DrawBegin();
+    esat::DrawClear(0,0,0);
 }
 
 void FinishFrame(){
+    esat::DrawEnd();  	
+    esat::WindowFrame();
     do{
         current_time = esat::Time();
     }while((current_time-last_time)<=1000.0/fps);
 }
 
 int esat::main(int argc, char **argv){
+    srand(time(NULL));
     esat::WindowInit(CFG::kScreenX, CFG::kScreenY);
     esat::WindowSetMouseVisibility(true);
     GAME::Init();
     while(esat::WindowIsOpened() && !esat::IsSpecialKeyDown(esat::kSpecialKey_Escape)) {
         InitFrame();
-    	esat::DrawBegin();
-    	esat::DrawClear(0,0,0);
 
         GAME::GetInput();
         GAME::Update(dt, current_time);
         GAME::Draw();
 
-    	esat::DrawEnd();  	
-    	esat::WindowFrame();
         FinishFrame();
     }
     GAME::Free();
